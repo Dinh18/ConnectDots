@@ -13,7 +13,7 @@ public class BoardController : MonoBehaviour
     void Start()
     {
         GenerateBoard();
-        TestStartGame();
+        // TestStartGame();
         // DebugColor();
     }
 
@@ -58,6 +58,9 @@ public class BoardController : MonoBehaviour
     {
         SetStartDots(Constants.COLOR.RED, new Vector2Int(0,0));
         SetStartDots(Constants.COLOR.RED, new Vector2Int(3,3));
+
+        SetStartDots(Constants.COLOR.BLUE, new Vector2Int(1,2));
+        SetStartDots(Constants.COLOR.BLUE, new Vector2Int(2,3));
     }
 
     public void SetStartDots(Constants.COLOR color, Vector2Int pos1)

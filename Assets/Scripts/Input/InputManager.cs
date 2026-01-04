@@ -8,6 +8,39 @@ public class InputManager : MonoBehaviour
     private Vector2Int lastPos;
     private BoardController board;
     private LineController lineController;
+    [Header("Editor Mode")]
+    public bool isEditorMode = false; // Bật cái này lên khi muốn tự vẽ level
+    public Constants.COLOR editorCurrentColor = Constants.COLOR.RED; // Màu đang chọn để vẽ
+
+    void HandleInputEditor()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            Vector3 worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            int x = Mathf.RoundToInt(worldPos.x);
+            int y = Mathf.RoundToInt(worldPos.y);
+                currentPos = new Vector2Int(x, y);
+            if (IsValidCell(currentPos))
+            {
+                lastPos = currentPos;
+
+                // --- LOGIC MỚI Ở ĐÂY ---
+                if (isEditorMode)
+                {
+                    // Nếu là chế độ Editor: Bấm vào đâu cũng vẽ được!
+                    // Tự động gọi hàm tạo dây mới với màu đang chọn
+                    lineController.CreateLine(editorCurrentColor, lastPos, currentPos, board);
+                }
+                else
+                {
+                    // Nếu là chế độ Chơi thường: Phải check xem ô đó có phải Dot không
+                    // (Logic cũ của bạn nằm ở đây)
+                    // var cell = board.GetCell(currentGridPos);
+                    // if (cell.IsStartDot()) ...
+                }
+            }
+        }
+    }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -18,7 +51,15 @@ public class InputManager : MonoBehaviour
     void Update()
     {
         HandleInput();
-        
+        HandleInputEditor();
+        if (isEditorMode)
+        {
+            if (Input.GetKeyDown(KeyCode.Alpha1)) editorCurrentColor = Constants.COLOR.RED;
+            if (Input.GetKeyDown(KeyCode.Alpha2)) editorCurrentColor = Constants.COLOR.GREEN;
+            if (Input.GetKeyDown(KeyCode.Alpha3)) editorCurrentColor = Constants.COLOR.BLUE;
+            if (Input.GetKeyDown(KeyCode.Alpha4)) editorCurrentColor = Constants.COLOR.YELLOW;
+            // ... thêm các màu khác tùy ý
+        }
     }
 
     public void InputManagerSetUp()
@@ -74,8 +115,7 @@ public class InputManager : MonoBehaviour
     {
         if(board.GetCellAtPosition(startPos).GetCellColor() != Constants.COLOR.WHITE)
         {
-            lineController.DrawLine(board.GetCellAtPosition(startPos).GetCellColor(), startPos);
-            return;
+            lineController.DrawLine(board.GetCellAtPosition(startPos).GetCellColor(), startPos, startPos, board);
         }
     }
 
@@ -85,9 +125,7 @@ public class InputManager : MonoBehaviour
         Debug.Log("Last Color: " + lastColorCell);
         if(lastColorCell != Constants.COLOR.WHITE)
         {
-            
-            lineController.DrawLine(lastColorCell, currentPos);
-            board.GetCellAtPosition(currentPos).SetCellColor(lastColorCell);
+            lineController.DrawLine(lastColorCell, lastPos, currentPos, board);
         }
     }
     private bool IsValidCell(Vector2Int pos)
