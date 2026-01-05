@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BoardController : MonoBehaviour
@@ -12,7 +13,7 @@ public class BoardController : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        GenerateBoard();
+        // GenerateBoard();
         // TestStartGame();
         // DebugColor();
     }
@@ -29,8 +30,10 @@ public class BoardController : MonoBehaviour
     public Cell GetCellAtPosition(Vector2Int pos) => cells[pos.x, pos.y].GetComponent<Cell>();
 
 
-    public void GenerateBoard()
+    public void Setup(int width, int height)
     {
+        this.width = width;
+        this.height = height;
         foreach(Transform child in boardHolder)
         {
             Destroy(child.gameObject);
@@ -49,21 +52,20 @@ public class BoardController : MonoBehaviour
                 newCell.transform.localScale = Vector3.one * (1 - cellGap);
 
                 cells[x, y] = newCell;
-                
             }
         }
     }
 
-    public void TestStartGame()
-    {
-        SetStartDots(Constants.COLOR.RED, new Vector2Int(0,0));
-        SetStartDots(Constants.COLOR.RED, new Vector2Int(3,3));
+    // public void TestStartGame()
+    // {
+    //     SetStartDots(Constants.COLOR.RED, new Vector2Int(0,0));
+    //     SetStartDots(Constants.COLOR.RED, new Vector2Int(3,3));
 
-        SetStartDots(Constants.COLOR.BLUE, new Vector2Int(1,2));
-        SetStartDots(Constants.COLOR.BLUE, new Vector2Int(2,3));
-    }
+    //     SetStartDots(Constants.COLOR.BLUE, new Vector2Int(1,2));
+    //     SetStartDots(Constants.COLOR.BLUE, new Vector2Int(2,3));
+    // }
 
-    public void SetStartDots(Constants.COLOR color, Vector2Int pos1)
+    public void SetupStartDots(Constants.COLOR color, Vector2Int pos1)
     {
         GameObject dot = Instantiate(dotPrefab);
         dot.transform.position = cells[pos1.x, pos1.y].transform.position;
@@ -83,7 +85,6 @@ public class BoardController : MonoBehaviour
 
                 Debug.Log(cells[x,y].GetComponent<Cell>().GetCellColor());
                 Debug.Log(cells[x,y].GetComponent<Cell>().IsStartDot());
-                
             }
         }
     }

@@ -56,12 +56,9 @@ public class LevelCreator : MonoBehaviour
 
     private Vector2Int WorldToGrid(Vector3 worldPos)
     {
-        // Giả sử offset tính như các bài trước
-        float offsetX = (width - 1) * 0.5f;
-        float offsetY = (height - 1) * 0.5f;
 
-        int x = Mathf.RoundToInt(worldPos.x + offsetX);
-        int y = Mathf.RoundToInt(worldPos.y + offsetY);
+        int x = Mathf.RoundToInt(worldPos.x );
+        int y = Mathf.RoundToInt(worldPos.y );
         return new Vector2Int(x, y);
     }
 #endif
