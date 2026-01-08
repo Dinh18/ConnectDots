@@ -25,7 +25,7 @@ public static class Constants
             COLOR.ORANGE => "#E67E22",
             COLOR.PURPLE => "#9B59B6",
             COLOR.BROWN  => "#8B4513",
-            _            => "#FFFFFF" // Mặc định (default)
+            _            => "#FFFFFF" 
         };
         if (ColorUtility.TryParseHtmlString(hex, out Color result))
         {

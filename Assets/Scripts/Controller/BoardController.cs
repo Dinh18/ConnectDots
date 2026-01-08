@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,6 +14,7 @@ public class BoardController : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        // Setup(width, height);
         // GenerateBoard();
         // TestStartGame();
         // DebugColor();
@@ -34,6 +36,7 @@ public class BoardController : MonoBehaviour
     {
         this.width = width;
         this.height = height;
+
         foreach(Transform child in boardHolder)
         {
             Destroy(child.gameObject);
@@ -68,6 +71,7 @@ public class BoardController : MonoBehaviour
     public void SetupStartDots(Constants.COLOR color, Vector2Int pos1)
     {
         GameObject dot = Instantiate(dotPrefab);
+        dot.transform.SetParent(boardHolder);
         dot.transform.position = cells[pos1.x, pos1.y].transform.position;
         cells[pos1.x, pos1.y].GetComponent<Cell>().SetCellColor(color);
         dot.GetComponent<SpriteRenderer>().color = Constants.GetColorString(color);

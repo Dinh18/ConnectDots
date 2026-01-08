@@ -148,7 +148,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a69af97cb266134cb14f1a60f1de0e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numberOfCoupleOfDots: 0
   linePrefab: {fileID: 8284665862490754886, guid: 63c7a19d6b1388d49ace147c9403df2a, type: 3}
   lrHolder: {fileID: 133663297}
 --- !u!4 &133663299
@@ -245,8 +244,8 @@ MonoBehaviour:
   savePath: Assets/Resources/Levels/
   levelName: Level_New
   lineController: {fileID: 133663298}
-  width: 5
-  height: 5
+  width: 6
+  height: 6
 --- !u!4 &1898260483
 Transform:
   m_ObjectHideFlags: 0
@@ -349,7 +348,7 @@ Transform:
   m_GameObject: {fileID: 1995773855}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.13, y: 1.5, z: -10}
+  m_LocalPosition: {x: 2.46, y: 1.5, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -428,8 +427,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a655bd3ff2e83d4ca5f9d899dfdd537, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 5
-  height: 5
+  width: 6
+  height: 6
   cellPrefab: {fileID: 4529297964092265302, guid: 178d5e34c087e8542868903cfe27f701, type: 3}
   dotPrefab: {fileID: 9143849611645794420, guid: 25e52a31eea53cf4b89b9a1423acea24, type: 3}
   boardHolder: {fileID: 2048110935}

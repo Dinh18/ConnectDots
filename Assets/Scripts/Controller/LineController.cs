@@ -1,31 +1,57 @@
 using System;
 using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
 
 public class LineController : MonoBehaviour
 {
     [SerializeField] private GameObject linePrefab;
     [SerializeField] private GameObject lrHolder;
-    private Dictionary<Constants.COLOR, GameObject> lines = new Dictionary<Constants.COLOR, GameObject>(); 
+    [SerializeField] private Dictionary<Constants.COLOR, GameObject> lines = new Dictionary<Constants.COLOR, GameObject>(); 
     private GameController gameController;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 
     public Dictionary<Constants.COLOR, GameObject> GetLines() => lines;
 
-    public void Setup(GameController gameController)
+    public void Setup(GameController gameController, int currentLevel)
     {
+        foreach(var kvp in lines)
+        {
+            if(kvp.Value != null)
+            {
+                Destroy(kvp.Value.gameObject);
+            }
+        }
         lines.Clear();
+
         this.gameController = gameController;
+
+        foreach(var dot in gameController.GetLevelData(currentLevel).dots)
+        {
+            GameObject lineObj = Instantiate(linePrefab, lrHolder.transform);
+            
+            LineRenderer lr = lineObj.GetComponent<LineRenderer>();
+            lr.startColor = Constants.GetColorString(dot.color);
+            lr.endColor = Constants.GetColorString(dot.color);
+            lr.positionCount = 0;
+
+            lines.Add(dot.color, lineObj);
+        }
+    }
+
+    public void ResetLine(Constants.COLOR color, Vector2Int pos,BoardController board)
+    {
+        if (!lines.ContainsKey(color)) return;
+        GameObject lineObj = lines[color];
+        LineRenderer lr = lineObj.GetComponent<LineRenderer>();
+        for(int i = 0; i < lr.positionCount; i++)
+        {
+            int px = Mathf.RoundToInt(lr.GetPosition(i).x);
+            int py = Mathf.RoundToInt(lr.GetPosition(i).y);
+            Vector2Int poslr = new Vector2Int(px,py);
+            if(!board.GetCellAtPosition(poslr).IsStartDot()) board.GetCellAtPosition(poslr).SetCellColor(Constants.COLOR.WHITE);
+        }
+        lr.positionCount = 1;
+        lr.SetPosition(0, new Vector3(pos.x, pos.y, -5));
     }
 
     /// <summary>
@@ -39,48 +65,47 @@ public class LineController : MonoBehaviour
     /// <param name="lastPos"></param>
     /// <param name="currentPos"></param>
 
-    public void DrawLine(Constants.COLOR color, Vector2Int lastPos, Vector2Int currentPos, BoardController board)
+    public bool DrawLine(Constants.COLOR color, Vector2Int lastPos, Vector2Int currentPos, BoardController board)
     {
-        LineRenderer lr;
-        if (lines.TryGetValue(color, out GameObject lineObj))
-        {
-            lr = lineObj.GetComponent<LineRenderer>();
-        }
-        else
-        {
-            // Tạo mới nếu chưa có
-            lineObj = Instantiate(linePrefab, lrHolder.transform);
-            lines.Add(color, lineObj);
-            
-            lr = lineObj.GetComponent<LineRenderer>();
-            lr.startColor = Constants.GetColorString(color);
-            lr.endColor = Constants.GetColorString(color);
-            
-            // Khởi tạo điểm đầu tiên
-            lr.positionCount = 1;
-            lr.SetPosition(0, new Vector3(currentPos.x, currentPos.y, -5f));
-            return;
-        }
+
+        if (!lines.ContainsKey(color)) return false;
+        GameObject lineObj = lines[color];
+        LineRenderer lr = lineObj.GetComponent<LineRenderer>();
+
+        // if (lr.positionCount == 0)
+        // {
+        //     lr.positionCount = 1;
+        //     lr.SetPosition(0, new Vector3(currentPos.x, currentPos.y, -5f));
+        //     board.GetCellAtPosition(currentPos).SetCellColor(color);
+        //     return;
+        // }
+        
+
 
         if(lastPos == currentPos)
         {
-            return; // Nếu điểm hiện tại trùng với điểm cuối cùng của line thì không làm gì
+            return false; // Nếu điểm hiện tại trùng với điểm cuối cùng của line thì không làm gì
         }
+
 
         int dx = Mathf.Abs(currentPos.x - lastPos.x);
         int dy = Mathf.Abs(currentPos.y - lastPos.y);
 
         if(dx + dy != 1)
         {
-            return; // Chỉ chấp nhận di chuyển ngang hoặc dọc một ô
+            return false; // Chỉ chấp nhận di chuyển ngang hoặc dọc một ô
         }
         
 
         if(board.GetCellAtPosition(lastPos).IsStartDot())
         {
-            for(int i = 1; i < lr.positionCount - 1; i++)
+            for(int i = 0; i < lr.positionCount; i++)
             {
-                board.GetCellAtPosition(new Vector2Int((int)lr.GetPosition(i).x, (int)lr.GetPosition(i).y)).SetCellColor(Constants.COLOR.WHITE);
+                int px = Mathf.RoundToInt(lr.GetPosition(i).x);
+                int py = Mathf.RoundToInt(lr.GetPosition(i).y);
+                Vector2Int pos = new Vector2Int(px, py);
+                
+                if(!board.GetCellAtPosition(pos).IsStartDot()) board.GetCellAtPosition(pos).SetCellColor(Constants.COLOR.WHITE);
             }
 
             // Xóa hết điểm cũ, chỉ giữ lại điểm xuất phát
@@ -98,7 +123,9 @@ public class LineController : MonoBehaviour
                 otherLR = otherLineObj.GetComponent<LineRenderer>();
                 for(int i = 0; i < otherLR.positionCount; i++)
                 {
-                    Vector2Int pos = new Vector2Int((int)otherLR.GetPosition(i).x, (int)otherLR.GetPosition(i).y);
+                    int px = Mathf.RoundToInt(otherLR.GetPosition(i).x);
+                    int py = Mathf.RoundToInt(otherLR.GetPosition(i).y);
+                    Vector2Int pos = new Vector2Int(px,py);
                     if(!board.GetCellAtPosition(pos).IsStartDot()) board.GetCellAtPosition(pos).SetCellColor(Constants.COLOR.WHITE);
                 }
                 otherLR.positionCount = 0;
@@ -116,7 +143,7 @@ public class LineController : MonoBehaviour
             for (int i = 0; i < lr.positionCount - 1; i++)
             {
                 // So sánh vị trí (Lưu ý: float nên so sánh khoảng cách nhỏ, hoặc ép kiểu nếu chắc chắn là grid)
-                if (Vector3.Distance(lr.GetPosition(i), newPos) < 0.01f)
+                if (Vector3.Distance(lr.GetPosition(i), newPos) < 0.5f)
                 {
                     foundIndex = i;
                     break; // Tìm thấy điểm cũ đầu tiên thì dừng ngay
@@ -129,13 +156,24 @@ public class LineController : MonoBehaviour
                 // Ví dụ: Line [0, 1, 2, 3], chạm vào 1 -> Giữ lại [0, 1] -> Count mới là 2 (index + 1)
                 for(int i = foundIndex + 1; i < lr.positionCount; i++)
                 {
-                    board.GetCellAtPosition(new Vector2Int((int)lr.GetPosition(i).x, (int)lr.GetPosition(i).y)).SetCellColor(Constants.COLOR.WHITE);
+                    int px = Mathf.RoundToInt(lr.GetPosition(i).x);
+                    int py = Mathf.RoundToInt(lr.GetPosition(i).y);
+                    Vector2Int pos = new Vector2Int(px,py);
+                    board.GetCellAtPosition(pos).SetCellColor(Constants.COLOR.WHITE);
                 }
                 lr.positionCount = foundIndex + 1;
                 
                 // Cập nhật lại vị trí điểm cuối cho chính xác tuyệt đối (phòng trường hợp sai số nhỏ)
                 lr.SetPosition(foundIndex, newPos);
-                if(isFinished(lr,board)) gameController.Won();
+                Debug.Log("Ve mau " + color + " tu " + lastPos + " " + currentPos);
+                if(isFinished(lr,board))
+                {
+                    if(CheckWinCodition(board))
+                    {
+                        gameController.SetState(GameController.GameState.LevelCompleted);
+                    }
+                }
+                return true;
 
             }
             else
@@ -144,17 +182,27 @@ public class LineController : MonoBehaviour
                 lr.positionCount++;
                 lr.SetPosition(lr.positionCount - 1, newPos);
                 board.GetCellAtPosition(currentPos).SetCellColor(color);
-                if(isFinished(lr,board)) gameController.Won();
+                Debug.Log("Ve mau " + color + " tu " + lastPos + " " + currentPos);
+                if(isFinished(lr,board))
+                {
+                    if(CheckWinCodition(board))
+                    {
+                        gameController.SetState(GameController.GameState.LevelCompleted);
+                    }
+                }
+                return true;
             }
             
         }
+        return false;
 
     }
     
     private bool isFinished(LineRenderer lr, BoardController board)
     {
-        Vector3 vt = lr.GetPosition(lr.positionCount - 1);
-        Vector2Int pos = new Vector2Int((int) vt.x, (int) vt.y);
+        int px = Mathf.RoundToInt(lr.GetPosition(lr.positionCount - 1).x);
+        int py = Mathf.RoundToInt(lr.GetPosition(lr.positionCount - 1).y);
+        Vector2Int pos = new Vector2Int(px, py);
         if(lr.positionCount > 2 && board.GetCellAtPosition(pos).IsStartDot()) return true;
         return false;
     }
@@ -180,12 +228,29 @@ public class LineController : MonoBehaviour
                 // Khởi tạo điểm đầu tiên
                 lr.positionCount = 1;
                 lr.SetPosition(0, new Vector3(currentPos.x, currentPos.y, -5f));
+                board.GetCellAtPosition(currentPos).SetCellColor(color);
                 return;
             }
 
         // QUAN TRỌNG: Trong Editor Mode, khi đặt bút xuống,
         // ta coi như ô đó là điểm bắt đầu luôn.
         // Gọi BoardController để đánh dấu ô này có màu (để hiển thị lên)
+        lr.positionCount++;
+        lr.SetPosition(lr.positionCount - 1, new Vector3(currentPos.x, currentPos.y, -5f));
         board.GetCellAtPosition(currentPos).SetCellColor(color);
+    }
+
+    private bool CheckWinCodition(BoardController board)
+    {
+        foreach ((Constants.COLOR color, GameObject lineObj) in lines)
+        {
+            LineRenderer lr = lineObj.GetComponent<LineRenderer>();
+            if(lr == null || lr.positionCount < 2) return false;
+            int px = Mathf.RoundToInt(lr.GetPosition(lr.positionCount - 1).x);
+            int py = Mathf.RoundToInt(lr.GetPosition(lr.positionCount - 1).y);
+            Vector2Int pos = new Vector2Int(px, py);
+            if(!board.GetCellAtPosition(pos).IsStartDot()) return false;
+        }
+        return true;
     }
 }
