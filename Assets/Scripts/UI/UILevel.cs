@@ -7,7 +7,7 @@ public class UILevel : MonoBehaviour, IMenu
 {
     private UIController uIController;
     [SerializeField] private TextMeshProUGUI text;
-    [SerializeField] private Button btnSetting;
+    [SerializeField] private Button btnPause;
     public void Hide()
     {
         this.gameObject.SetActive(false);
@@ -25,7 +25,7 @@ public class UILevel : MonoBehaviour, IMenu
 
     void Start()
     {
-        btnSetting.onClick.AddListener(() => uIController.OnClickSetting());
+        btnPause.onClick.AddListener(() => uIController.OnClickPause());
     }
 
     void OnEnable()

@@ -10,6 +10,7 @@ public class GameController : MonoBehaviour
         MainMenu,
         Playing,
         LevelCompleted,
+        Pause,
         Setting
     }
     public GameState currentgameState = GameState.MainMenu;

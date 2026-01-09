@@ -2,8 +2,6 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using DG.Tweening;
-using static System.Net.Mime.MediaTypeNames;
-using NUnit.Framework;
 using UnityEngine.UI;
 
 public class UIController : MonoBehaviour
@@ -11,28 +9,28 @@ public class UIController : MonoBehaviour
     private GameController gameController;
     private SoundController soundController;
     [SerializeField] private GameObject panelMainMenu;
-    [SerializeField] private GameObject panelCompleted;
     [SerializeField] private GameObject panelCompletedMenu;
     [SerializeField] private GameObject uiLevel;
     [SerializeField] private GameObject uiSetting;
+    [SerializeField] private GameObject uiPause;
     private UIMainMenu mainMenu;
-    private UICompleted completed;
     private UICompletedMenu completedMenu;
     private UILevel level;
     private UISetting setting;
+    private UIPause pause;
     void Awake()
     {
         mainMenu = panelMainMenu.GetComponent<UIMainMenu>();
-        completed = panelCompleted.GetComponent<UICompleted>();
         completedMenu = panelCompletedMenu.GetComponent<UICompletedMenu>();
         level = uiLevel.GetComponent<UILevel>();
         setting = uiSetting.GetComponent<UISetting>();
+        pause = uiPause.GetComponent<UIPause>();
 
         mainMenu.SetUp(this);
-        completed.SetUp(this);
         completedMenu.SetUp(this);
         level.SetUp(this);
         setting.SetUp(this); 
+        pause.SetUp(this);
     }
 
     // Update is called once per frame
@@ -41,23 +39,34 @@ public class UIController : MonoBehaviour
         
     }
 
+    public SoundController GetSoundController() => soundController;
+
     public void UpdateUI(GameController.GameState state)
     {
         mainMenu.Hide();
-        completed.Hide();
         completedMenu.Hide();
         level.Hide();
         setting.Hide();
+        pause.Hide();
         switch(state)
         {
             case GameController.GameState.MainMenu:
                 mainMenu.Show();
+                mainMenu.transform.localScale = Vector3.zero;
+                mainMenu.transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack);
                 break;
             case GameController.GameState.Playing:
                 level.Show();
                 break;
             case GameController.GameState.Setting:
                 setting.Show();
+                setting.transform.localScale = Vector3.zero;
+                setting.transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack);
+                break;
+            case GameController.GameState.Pause:
+                pause.Show();
+                pause.transform.localScale = Vector3.zero;
+                pause.transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack);
                 break;
             case GameController.GameState.LevelCompleted:
                 Camera.main.transform.DOShakePosition(0.5f, 0.3f, 10, 90);
@@ -97,20 +106,38 @@ public class UIController : MonoBehaviour
         gameController.SetState(GameController.GameState.MainMenu);
     }
 
-    public void OnClickSound()
+    public void OnClickSound(Button btnSound, Sprite iconOn, Sprite iconOff)
     {
         soundController.ChangeEnableSoundEffectSource();
+        if(soundController.IsPlaySoundEffect()) btnSound.GetComponent<Image>().sprite = iconOn;
+        else btnSound.GetComponent<Image>().sprite = iconOff;
     }
-    public void OnClickMusic()
+    public void OnClickMusic(Button btnMusic, Sprite iconOn, Sprite iconOff)
     {
         if(soundController.IsPlayBackGround())
         {
             soundController.MuteBackGroundSound();
+            btnMusic.GetComponent<Image>().sprite = iconOff;
         }
-        else soundController.UnMuteBackGroundSound();
+        else {
+            soundController.UnMuteBackGroundSound();
+            btnMusic.GetComponent<Image>().sprite = iconOn;
+        }
     }
     public int SetLevelText()
     {
         return gameController.CurrentLevelIndex + 1;
+    }
+    public void OnClickPause()
+    {
+        gameController.SetState(GameController.GameState.Pause);
+    }
+    public void OnClickRelay()
+    {
+        gameController.LoadLevel();
+    }
+    public void OnClickResume()
+    {
+        gameController.SetState(GameController.GameState.Playing);
     }
 }

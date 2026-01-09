@@ -104,5 +104,6 @@ public class SoundController : MonoBehaviour
     }
 
     public bool IsPlayBackGround() => isPlayBackground;
+    public bool IsPlaySoundEffect() => isPlaySoundEffect;
     
 }

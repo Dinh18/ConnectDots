@@ -127,7 +127,7 @@ public class LineController : MonoBehaviour
         int dx = Mathf.Abs(currentPos.x - lastPos.x);
         int dy = Mathf.Abs(currentPos.y - lastPos.y);
 
-        if(dx + dy != 1 || board.GetCellAtPosition(currentPos).GetCellColor() == Constants.COLOR.WHITE)
+        if(dx + dy != 1)
         {
             return false; // Chỉ chấp nhận di chuyển ngang hoặc dọc một ô
         }

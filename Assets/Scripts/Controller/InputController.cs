@@ -75,6 +75,10 @@ public class InputCotroller : MonoBehaviour
             {
                 ProcessInputMoved(touchPos);
             }
+            if(touch.phase == TouchPhase.Ended)
+            {
+                currentDrawingColor = Constants.COLOR.WHITE;
+            }
         }
     }
 
@@ -128,6 +132,8 @@ public class InputCotroller : MonoBehaviour
             {
                 return; 
             }
+
+            
 
             // --- 2. LOGIC VẼ THƯỜNG (QUAN TRỌNG) ---
             // Gọi hàm vẽ và HỨNG KẾT QUẢ TRẢ VỀ (bool)

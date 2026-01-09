@@ -1,16 +1,19 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UISetting : MonoBehaviour, IMenu
+public class UIPause : MonoBehaviour, IMenu
 {
     private UIController uIController;
-    [SerializeField] private Button btnMainMenu;
-    [SerializeField] private Button btnSound;
-    [SerializeField] private Button btnMusic;
-    [SerializeField] private Sprite iconMusicOn;
-    [SerializeField] private Sprite iconMusicOff;
+    [SerializeField] Button btnMusic;
+    [SerializeField] Button btnSound;
+    [SerializeField] Button btnBackHome;
+    [SerializeField] Button btnResume;
+    [SerializeField] Button btnReplay;
+    [SerializeField] Sprite iconMusicOn;
+    [SerializeField] Sprite iconMusicOff;
     [SerializeField] private Sprite iconSoundOn;
     [SerializeField] private Sprite iconSoundOff;
+
     public void Hide()
     {
         this.gameObject.SetActive(false);
@@ -29,10 +32,13 @@ public class UISetting : MonoBehaviour, IMenu
         if(uIController.GetSoundController().IsPlaySoundEffect()) btnSound.GetComponent<Image>().sprite = iconSoundOn;
         else btnSound.GetComponent<Image>().sprite = iconSoundOff;
     }
+
     void Start()
     {
-        btnMainMenu.onClick.AddListener(() => uIController.OnClickMainMenu());
+        btnMusic.onClick.AddListener(() => uIController.OnClickMusic(btnMusic,iconMusicOn,iconMusicOff));
         btnSound.onClick.AddListener(() => uIController.OnClickSound(btnSound, iconSoundOn, iconSoundOff));
-        btnMusic.onClick.AddListener(() => uIController.OnClickMusic(btnMusic, iconMusicOn, iconMusicOff));
+        btnBackHome.onClick.AddListener(() => uIController.OnClickMainMenu());
+        btnResume.onClick.AddListener(() => uIController.OnClickResume());
+        btnReplay.onClick.AddListener(() => uIController.OnClickRelay());
     }
 }
