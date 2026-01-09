@@ -100,3 +100,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6d863dc78a8cda4796d6e2dfc679f9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cellColor: 7

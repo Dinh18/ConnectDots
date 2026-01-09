@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class BoardController : MonoBehaviour
 {
@@ -53,10 +54,14 @@ public class BoardController : MonoBehaviour
                 newCell.transform.position = new Vector3(x + offset.x, y + offset.y,0);
                 newCell.name = $"Cell {x} {y}";
                 newCell.transform.localScale = Vector3.one * (1 - cellGap);
+                newCell.GetComponent<Cell>().SetCellColor(Constants.COLOR.WHITE);
 
                 cells[x, y] = newCell;
             }
         }
+
+        boardHolder.localScale = new Vector3(0, 1, 1); 
+        boardHolder.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack);
     }
 
     // public void TestStartGame()
@@ -70,9 +75,8 @@ public class BoardController : MonoBehaviour
 
     public void SetupStartDots(Constants.COLOR color, Vector2Int pos1)
     {
-        GameObject dot = Instantiate(dotPrefab);
-        dot.transform.SetParent(boardHolder);
-        dot.transform.position = cells[pos1.x, pos1.y].transform.position;
+        GameObject dot = Instantiate(dotPrefab,boardHolder);
+        dot.transform.localPosition = new Vector3(cells[pos1.x, pos1.y].transform.localPosition.x, cells[pos1.x, pos1.y].transform.localPosition.y, 0f);
         cells[pos1.x, pos1.y].GetComponent<Cell>().SetCellColor(color);
         dot.GetComponent<SpriteRenderer>().color = Constants.GetColorString(color);
         cells[pos1.x, pos1.y].GetComponent<Cell>().SetStartDot(true);
@@ -86,7 +90,6 @@ public class BoardController : MonoBehaviour
         {
             for(int y = 0; y < height; y++)
             {
-
                 Debug.Log(cells[x,y].GetComponent<Cell>().GetCellColor());
                 Debug.Log(cells[x,y].GetComponent<Cell>().IsStartDot());
             }

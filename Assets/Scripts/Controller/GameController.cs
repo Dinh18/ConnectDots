@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using DG.Tweening;
 
 public class GameController : MonoBehaviour
 {
@@ -9,7 +10,7 @@ public class GameController : MonoBehaviour
         MainMenu,
         Playing,
         LevelCompleted,
-        Paused
+        Setting
     }
     public GameState currentgameState = GameState.MainMenu;
     private BoardController board;
@@ -17,6 +18,7 @@ public class GameController : MonoBehaviour
     private LineController line;
     private CameraAdapter cameraAdapter;
     private UIController uiController;
+    private SoundController soundController;
     public List<LevelDataSO> allLevels;
     public int CurrentLevelIndex = 0;
     void Awake()
@@ -26,7 +28,8 @@ public class GameController : MonoBehaviour
         line = GameObject.Find("Line Holder").GetComponent<LineController>();
         cameraAdapter = GameObject.Find("Main Camera").GetComponent<CameraAdapter>();
         uiController = FindObjectOfType<UIController>();
-        uiController.Setup(this);
+        soundController = FindObjectOfType<SoundController>();
+        uiController.Setup(this,soundController);
         
 
         CurrentLevelIndex = PlayerPrefs.GetInt("CurrentLevelIndex",0);

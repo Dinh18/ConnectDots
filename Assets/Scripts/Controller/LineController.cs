@@ -12,6 +12,12 @@ public class LineController : MonoBehaviour
 
     public Dictionary<Constants.COLOR, GameObject> GetLines() => lines;
 
+    public static event Action<int> OnLineStep;
+    public static event Action OnLineCompleted;
+    public static event Action OnLineCut;
+    public static event Action OnLineError;
+    public static event Action OnLevelCompleted;
+
     public void Setup(GameController gameController, int currentLevel)
     {
         foreach(var kvp in lines)
@@ -54,6 +60,36 @@ public class LineController : MonoBehaviour
         lr.SetPosition(0, new Vector3(pos.x, pos.y, -5));
     }
 
+    public void CutLine(Constants.COLOR color, Vector2Int pos,BoardController board)
+    {
+        int index = -1;
+        if (!lines.ContainsKey(color)) return;
+        GameObject lineObj = lines[color];
+        LineRenderer lr = lineObj.GetComponent<LineRenderer>();
+        for(int i = 0; i < lr.positionCount; i++)
+        {
+            int px = Mathf.RoundToInt(lr.GetPosition(i).x);
+            int py = Mathf.RoundToInt(lr.GetPosition(i).y);
+            if(px == pos.x && py == pos.y)
+            {
+                index = i;
+                break;
+            }
+        }
+        if(index != -1)
+        {
+            for(int i = lr.positionCount - 1; i > index; i--)
+            {
+                int px = Mathf.RoundToInt(lr.GetPosition(i).x);
+                int py = Mathf.RoundToInt(lr.GetPosition(i).y);
+                Vector2Int poslr = new Vector2Int(px, py);
+                if(!board.GetCellAtPosition(poslr).IsStartDot()) board.GetCellAtPosition(poslr).SetCellColor(Constants.COLOR.WHITE);
+            }
+            lr.positionCount = index + 1;
+            OnLineCut?.Invoke();
+        }
+    }
+
     /// <summary>
     /// Nếu chưa có và là điểm xuất phát thì thêm line mới
     /// Nếu có rồi
@@ -91,7 +127,7 @@ public class LineController : MonoBehaviour
         int dx = Mathf.Abs(currentPos.x - lastPos.x);
         int dy = Mathf.Abs(currentPos.y - lastPos.y);
 
-        if(dx + dy != 1)
+        if(dx + dy != 1 || board.GetCellAtPosition(currentPos).GetCellColor() == Constants.COLOR.WHITE)
         {
             return false; // Chỉ chấp nhận di chuyển ngang hoặc dọc một ô
         }
@@ -159,7 +195,7 @@ public class LineController : MonoBehaviour
                     int px = Mathf.RoundToInt(lr.GetPosition(i).x);
                     int py = Mathf.RoundToInt(lr.GetPosition(i).y);
                     Vector2Int pos = new Vector2Int(px,py);
-                    board.GetCellAtPosition(pos).SetCellColor(Constants.COLOR.WHITE);
+                    if(!board.GetCellAtPosition(pos).IsStartDot()) board.GetCellAtPosition(pos).SetCellColor(Constants.COLOR.WHITE);
                 }
                 lr.positionCount = foundIndex + 1;
                 
@@ -168,13 +204,14 @@ public class LineController : MonoBehaviour
                 Debug.Log("Ve mau " + color + " tu " + lastPos + " " + currentPos);
                 if(isFinished(lr,board))
                 {
+                    OnLineCompleted?.Invoke();
                     if(CheckWinCodition(board))
                     {
+                        OnLevelCompleted?.Invoke();
                         gameController.SetState(GameController.GameState.LevelCompleted);
                     }
                 }
                 return true;
-
             }
             else
             {
@@ -183,10 +220,13 @@ public class LineController : MonoBehaviour
                 lr.SetPosition(lr.positionCount - 1, newPos);
                 board.GetCellAtPosition(currentPos).SetCellColor(color);
                 Debug.Log("Ve mau " + color + " tu " + lastPos + " " + currentPos);
+                OnLineStep?.Invoke(lr.positionCount);
                 if(isFinished(lr,board))
                 {
+                    OnLineCompleted?.Invoke();
                     if(CheckWinCodition(board))
                     {
+                        OnLevelCompleted?.Invoke();
                         gameController.SetState(GameController.GameState.LevelCompleted);
                     }
                 }

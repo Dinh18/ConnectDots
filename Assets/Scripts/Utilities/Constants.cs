@@ -11,7 +11,7 @@ public static class Constants
         ORANGE,
         PURPLE,
         BROWN,
-        WHITE
+        WHITE,
     }
 
     public static Color GetColorString(COLOR color)
@@ -25,7 +25,8 @@ public static class Constants
             COLOR.ORANGE => "#E67E22",
             COLOR.PURPLE => "#9B59B6",
             COLOR.BROWN  => "#8B4513",
-            _            => "#FFFFFF" 
+            COLOR.WHITE  => "#939393",
+            _ => null
         };
         if (ColorUtility.TryParseHtmlString(hex, out Color result))
         {

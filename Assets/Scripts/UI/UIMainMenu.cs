@@ -11,6 +11,7 @@ public class UIMainMenu : MonoBehaviour, IMenu
     void Start()
     {
         btnPlay.onClick.AddListener(() => uIController.OnclikPlay());
+        btnSetting.onClick.AddListener(() => uIController.OnClickSetting());
     }
 
     public void SetUp(UIController uIController)

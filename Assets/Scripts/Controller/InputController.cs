@@ -1,4 +1,5 @@
 using UnityEngine;
+using DG.Tweening;
 
 public class InputCotroller : MonoBehaviour
 {
@@ -82,22 +83,33 @@ public class InputCotroller : MonoBehaviour
         startPos = Vector2Int.RoundToInt(touchPos);
         lastPos = startPos;
         if (!IsValidCell(startPos)) return;
+
         Constants.COLOR cellColor = board.GetCellAtPosition(startPos).GetCellColor();
+        if(cellColor == Constants.COLOR.WHITE) return;
         if(board.GetCellAtPosition(startPos).IsStartDot())
         {
             lineController.ResetLine(cellColor, startPos,board);
-
         }
+        else if(board.GetCellAtPosition(startPos).GetCellColor() != Constants.COLOR.WHITE) lineController.CutLine(cellColor,startPos,board);
         
         // Chỉ cho phép vẽ nếu bấm vào Dot hoặc Dây đã có màu
         if (cellColor != Constants.COLOR.WHITE)
         {
+            RaycastHit2D hit = Physics2D.Raycast(touchPos, Vector2.zero);
+            if(hit != null)
+            {
+
+                hit.transform.DOPunchScale(Vector3.one * 0.3f, 0.2f, 10, 1);
+            }
             isDragging = true;
             currentDrawingColor = cellColor; // <--- QUAN TRỌNG: Lưu màu lại ngay!
             
             // Gọi vẽ điểm đầu để khởi tạo dây
             lineController.DrawLine(currentDrawingColor, startPos, startPos, board);
+
         }
+
+
     }
 
     private void ProcessInputMoved(Vector3 touchPos)
